@@ -1,8 +1,27 @@
-/* Highlight high-value expenses (>1000) */
-.high-value {
-    background-color: #f8d7da;
+body{
+background: linear-gradient(135deg,#667eea,#764ba2);
+font-family: 'Segoe UI';
 }
 
-body {
-    padding: 20px;
+.login-body{
+background: linear-gradient(135deg,#1d2671,#c33764);
+}
+
+.login-card{
+width:350px;
+padding:30px;
+border-radius:15px;
+}
+
+.summary-card{
+padding:20px;
+background:white;
+border-radius:10px;
+text-align:center;
+box-shadow:0 4px 15px rgba(0,0,0,0.2);
+}
+
+.high-expense{
+background:#ffcccc;
+font-weight:bold;
 }

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | Expense Tracker</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+<div class="container-fluid">
+<span class="navbar-brand">Expense Tracker</span>
+<button onclick="logout()" class="btn btn-danger">Logout</button>
+</div>
+</nav>
+
+<div class="container mt-4">
+<div class="row mb-4">
+<div class="col-md-4">
+<div class="card summary-card">
+<h5>Total Expenses</h5>
+<h2 id="totalExpense">0</h2>
+</div>
+</div>
+</div>
+
+<div class="card p-3 mb-4">
+<h5>Add Expense</h5>
+<form id="expenseForm">
+<div class="row">
+<div class="col-md-3"><input class="form-control" id="title" placeholder="Title" required></div>
+<div class="col-md-2">
+<select class="form-control" id="category">
+<option>Food</option><option>Travel</option><option>Shopping</option>
+<option>Utilities</option><option>Others</option>
+</select></div>
+<div class="col-md-2"><input type="number" class="form-control" id="amount" placeholder="Amount"></div>
+<div class="col-md-2"><input type="date" class="form-control" id="expenseDate"></div>
+<div class="col-md-2">
+<select class="form-control" id="paymentMethod">
+<option>Cash</option><option>Card</option><option>UPI</option>
+</select></div>
+<div class="col-md-1"><button class="btn btn-primary">Save</button></div>
+</div>
+</form>
+</div>
+
+<div class="mb-3">
+<input class="form-control w-25 d-inline" id="searchTitle" placeholder="Search">
+<button class="btn btn-secondary" onclick="searchExpense()">Search</button>
+</div>
+
+<table class="table table-hover">
+<thead>
+<tr>
+<th>ID</th><th>Title</th><th>Category</th><th>Amount</th>
+<th>Date</th><th>Payment</th><th>Action</th>
+</tr>
+</thead>
+<tbody id="expenseTable"></tbody>
+</table>
+
+</div>
+<script src="js/app.js"></script>
+</body>
+</html>

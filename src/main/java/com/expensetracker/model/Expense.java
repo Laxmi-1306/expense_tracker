@@ -2,48 +2,34 @@ package com.expensetracker.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 public class Expense {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
 
-    private String title;
-    private String category;
-    private Double amount;
-    private LocalDate expenseDate;
-    private String paymentMethod;
-    private LocalDateTime createdDateTime;
+private String title;
+private String category;
+private double amount;
+private LocalDate expenseDate;
+private String paymentMethod;
 
-    public Expense() {} // default constructor
+public Long getId(){return id;}
 
-    public Expense(String title, String category, Double amount, LocalDate expenseDate, String paymentMethod) {
-        this.title = title;
-        this.category = category;
-        this.amount = amount;
-        this.expenseDate = expenseDate;
-        this.paymentMethod = paymentMethod;
-        this.createdDateTime = LocalDateTime.now();
-    }
+public String getTitle(){return title;}
+public void setTitle(String title){this.title=title;}
 
-    // ===== GETTERS =====
-    public Long getId() { return id; }
-    public String getTitle() { return title; }
-    public String getCategory() { return category; }
-    public Double getAmount() { return amount; }
-    public LocalDate getExpenseDate() { return expenseDate; }
-    public String getPaymentMethod() { return paymentMethod; }
-    public LocalDateTime getCreatedDateTime() { return createdDateTime; }
+public String getCategory(){return category;}
+public void setCategory(String category){this.category=category;}
 
-    // ===== SETTERS =====
-    public void setId(Long id) { this.id = id; }
-    public void setTitle(String title) { this.title = title; }
-    public void setCategory(String category) { this.category = category; }
-    public void setAmount(Double amount) { this.amount = amount; }
-    public void setExpenseDate(LocalDate expenseDate) { this.expenseDate = expenseDate; }
-    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
-    public void setCreatedDateTime(LocalDateTime createdDateTime) { this.createdDateTime = createdDateTime; }
+public double getAmount(){return amount;}
+public void setAmount(double amount){this.amount=amount;}
+
+public LocalDate getExpenseDate(){return expenseDate;}
+public void setExpenseDate(LocalDate expenseDate){this.expenseDate=expenseDate;}
+
+public String getPaymentMethod(){return paymentMethod;}
+public void setPaymentMethod(String paymentMethod){this.paymentMethod=paymentMethod;}
 }

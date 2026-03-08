@@ -2,57 +2,57 @@ package com.expensetracker.controller;
 
 import com.expensetracker.model.Expense;
 import com.expensetracker.repository.ExpenseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "*") // allow frontend
+@CrossOrigin
 @RestController
 @RequestMapping("/expenses")
 public class ExpenseController {
 
-    @Autowired
-    private ExpenseRepository repository;
+private final ExpenseRepository repo;
 
-    @GetMapping
-    public List<Expense> getAllExpenses() {
-        return repository.findAll();
-    }
+public ExpenseController(ExpenseRepository repo){
+this.repo=repo;
+}
 
-    @PostMapping
-    public Expense createExpense(@RequestBody Expense expense) {
-        return repository.save(expense);
-    }
+@GetMapping
+public List<Expense> getAll(){
+return repo.findAll();
+}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Expense> updateExpense(@PathVariable Long id, @RequestBody Expense updatedExpense) {
-        return repository.findById(id).map(expense -> {
-            expense.setTitle(updatedExpense.getTitle());
-            expense.setCategory(updatedExpense.getCategory());
-            expense.setAmount(updatedExpense.getAmount());
-            expense.setExpenseDate(updatedExpense.getExpenseDate());
-            expense.setPaymentMethod(updatedExpense.getPaymentMethod());
-            return ResponseEntity.ok(repository.save(expense));
-        }).orElse(ResponseEntity.notFound().build());
-    }
+@PostMapping
+public Expense create(@RequestBody Expense e){
+return repo.save(e);
+}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
-        return repository.findById(id).map(expense -> {
-            repository.delete(expense);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
-    }
+@PutMapping("/{id}")
+public Expense update(@PathVariable Long id,@RequestBody Expense e){
 
-    @GetMapping("/search")
-    public List<Expense> searchByTitle(@RequestParam String title) {
-        return repository.findByTitleContainingIgnoreCase(title);
-    }
+Expense ex = repo.findById(id).orElseThrow();
 
-    @GetMapping("/filter")
-    public List<Expense> filterByCategory(@RequestParam String category) {
-        return repository.findByCategory(category);
-    }
+ex.setTitle(e.getTitle());
+ex.setCategory(e.getCategory());
+ex.setAmount(e.getAmount());
+ex.setExpenseDate(e.getExpenseDate());
+ex.setPaymentMethod(e.getPaymentMethod());
+
+return repo.save(ex);
+}
+
+@DeleteMapping("/{id}")
+public void delete(@PathVariable Long id){
+repo.deleteById(id);
+}
+
+@GetMapping("/search")
+public List<Expense> search(@RequestParam String title){
+return repo.findByTitleContainingIgnoreCase(title);
+}
+
+@GetMapping("/filter")
+public List<Expense> filter(@RequestParam String category){
+return repo.findByCategory(category);
+}
 }
