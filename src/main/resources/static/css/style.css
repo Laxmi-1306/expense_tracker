@@ -1,0 +1,8 @@
+/* Highlight high-value expenses (>1000) */
+.high-value {
+    background-color: #f8d7da;
+}
+
+body {
+    padding: 20px;
+}
