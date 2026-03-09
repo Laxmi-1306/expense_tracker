@@ -21,7 +21,8 @@ text-align:center;
 box-shadow:0 4px 15px rgba(0,0,0,0.2);
 }
 
-.high-expense{
-background:#ffcccc;
+.high-value td{
+background:#ff4d4d;
+color:rgb(236, 194, 175);
 font-weight:bold;
 }

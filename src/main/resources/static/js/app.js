@@ -1,20 +1,86 @@
-const apiUrl = 'http://localhost:8080/expenses';
+const API = "http://localhost:8080";
+const userId = localStorage.getItem("userId");
 
-// Fetch and render all expenses
-async function fetchExpenses() {
-    const res = await fetch(apiUrl);
+/* ================= LOGIN ================= */
+if (document.getElementById("loginForm")) {
+    document.getElementById("loginForm").addEventListener("submit", async function(e){
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const res = await fetch(API + "/auth/login",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({email,password})
+        });
+
+        const data = await res.text();
+        if(data !== "FAIL"){
+            localStorage.setItem("loggedIn","true");
+            localStorage.setItem("userId",data);
+            window.location.href="dashboard.html";
+        } else {
+            alert("Invalid Login");
+        }
+    });
+}
+
+/* ================= REGISTER ================= */
+if(document.getElementById("registerForm")){
+    document.getElementById("registerForm").addEventListener("submit", async function(e){
+        e.preventDefault();
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const res = await fetch(API + "/auth/register",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({name,email,password})
+        });
+
+        const data = await res.text();
+        if(data === "SUCCESS"){
+            alert("Registration Successful");
+            window.location.href="login.html";
+        } else {
+            alert("Email already exists");
+        }
+    });
+}
+
+/* ================= DASHBOARD SECURITY ================= */
+if(window.location.pathname.includes("dashboard")){
+    if(!localStorage.getItem("loggedIn")){
+        window.location.href="login.html";
+    }
+}
+
+/* ================= FETCH EXPENSES (optional title search) ================= */
+async function fetchExpenses(title = ""){
+    if(!document.getElementById("expenseTable")) return;
+
+    let url = `${API}/expenses?userId=${userId}`;
+    if(title.trim() !== ""){
+        url += `&title=${encodeURIComponent(title.trim())}`;
+    }
+
+    const res = await fetch(url);
     const data = await res.json();
+
     renderTable(data);
     updateTotal(data);
 }
 
-// Render table rows with Edit/Delete and highlight high-value
-function renderTable(expenses) {
-    const tbody = document.getElementById('expenseTable');
-    tbody.innerHTML = '';
-    expenses.forEach(exp => {
-        const row = document.createElement('tr');
-        if (exp.amount > 1000) row.classList.add('high-value'); // highlight
+/* ================= RENDER TABLE ================= */
+function renderTable(expenses){
+    const tbody = document.getElementById("expenseTable");
+    tbody.innerHTML = "";
+
+    expenses.forEach(exp=>{
+        const row = document.createElement("tr");
+        if(exp.amount > 1000) row.classList.add("high-value");
+
         row.innerHTML = `
             <td>${exp.id}</td>
             <td>${exp.title}</td>
@@ -23,95 +89,92 @@ function renderTable(expenses) {
             <td>${exp.expenseDate}</td>
             <td>${exp.paymentMethod}</td>
             <td>
-                <button onclick="editExpense(${exp.id})" class="btn btn-sm btn-warning me-1">Edit</button>
-                <button onclick="deleteExpense(${exp.id})" class="btn btn-sm btn-danger">Delete</button>
+                <button onclick="editExpense(${exp.id})" class="btn btn-warning btn-sm">Edit</button>
+                <button onclick="deleteExpense(${exp.id})" class="btn btn-danger btn-sm">Delete</button>
             </td>
         `;
         tbody.appendChild(row);
     });
 }
 
-// Update total expense
-function updateTotal(expenses) {
-    const total = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-    document.getElementById('totalExpense').innerText = `₹ ${total.toFixed(2)}`;
+/* ================= TOTAL ================= */
+function updateTotal(expenses){
+    const total = expenses.reduce((sum,e)=>sum + e.amount,0);
+    const totalEl = document.getElementById("totalExpense");
+    if(totalEl) totalEl.innerText = "₹ " + total;
 }
 
-// Add / Update expense
-document.getElementById('expenseForm').addEventListener('submit', async e => {
-    e.preventDefault();
-    const id = document.getElementById('expenseId') ? document.getElementById('expenseId').value : '';
-    const expenseData = {
-        title: document.getElementById('title').value,
-        category: document.getElementById('category').value,
-        amount: parseFloat(document.getElementById('amount').value),
-        expenseDate: document.getElementById('expenseDate').value,
-        paymentMethod: document.getElementById('paymentMethod').value
-    };
+/* ================= ADD / UPDATE ================= */
+if(document.getElementById("expenseForm")){
+    document.getElementById("expenseForm").addEventListener("submit", async e=>{
+        e.preventDefault();
 
-    if (id) {
-        await fetch(`${apiUrl}/${id}`, { 
-            method: 'PUT', 
-            headers: {'Content-Type':'application/json'}, 
-            body: JSON.stringify(expenseData) 
-        });
-        document.getElementById('expenseId').remove();
-    } else {
-        await fetch(apiUrl, { 
-            method: 'POST', 
-            headers: {'Content-Type':'application/json'}, 
-            body: JSON.stringify(expenseData) 
-        });
-    }
+        const id = document.getElementById("expenseId").value;
+        const expenseData = {
+            title:document.getElementById("title").value,
+            category:document.getElementById("category").value,
+            amount:parseFloat(document.getElementById("amount").value),
+            expenseDate:document.getElementById("expenseDate").value,
+            paymentMethod:document.getElementById("paymentMethod").value,
+            user:{id:userId}
+        };
 
-    document.getElementById('expenseForm').reset();
+        if(id){
+            await fetch(`${API}/expenses/${id}`,{
+                method:"PUT",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify(expenseData)
+            });
+        } else {
+            await fetch(`${API}/expenses`,{
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify(expenseData)
+            });
+        }
+
+        document.getElementById("expenseForm").reset();
+        document.getElementById("expenseId").value = "";
+        fetchExpenses();
+    });
+}
+
+/* ================= DELETE ================= */
+async function deleteExpense(id){
+    await fetch(`${API}/expenses/${id}`,{ method:"DELETE" });
+    fetchExpenses();
+}
+
+/* ================= EDIT ================= */
+async function editExpense(id){
+    const res = await fetch(`${API}/expenses/${id}`);
+    const exp = await res.json();
+
+    document.getElementById("expenseId").value = exp.id;
+    document.getElementById("title").value = exp.title;
+    document.getElementById("category").value = exp.category;
+    document.getElementById("amount").value = exp.amount;
+    document.getElementById("expenseDate").value = exp.expenseDate;
+    document.getElementById("paymentMethod").value = exp.paymentMethod;
+}
+
+/* ================= SEARCH ================= */
+function searchExpense(){
+    const title = document.getElementById("searchTitle").value;
+    fetchExpenses(title);
+}
+
+/* ================= SHOW ALL ================= */
+document.getElementById("showAllBtn").addEventListener("click", ()=>{
+    document.getElementById("searchTitle").value = "";
     fetchExpenses();
 });
 
-// Delete expense
-async function deleteExpense(id) {
-    if (confirm("Are you sure you want to delete this expense?")) {
-        await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
-        fetchExpenses();
-    }
+/* ================= LOGOUT ================= */
+function logout(){
+    localStorage.clear();
+    window.location.href="login.html";
 }
 
-// Edit expense
-async function editExpense(id) {
-    const res = await fetch(`${apiUrl}/${id}`);
-    const exp = await res.json();
-    document.getElementById('title').value = exp.title;
-    document.getElementById('category').value = exp.category;
-    document.getElementById('amount').value = exp.amount;
-    document.getElementById('expenseDate').value = exp.expenseDate;
-    document.getElementById('paymentMethod').value = exp.paymentMethod;
-
-    // Add hidden field to track edit
-    let hiddenId = document.getElementById('expenseId');
-    if (!hiddenId) {
-        hiddenId = document.createElement('input');
-        hiddenId.type = 'hidden';
-        hiddenId.id = 'expenseId';
-        hiddenId.value = exp.id;
-        document.getElementById('expenseForm').appendChild(hiddenId);
-    } else {
-        hiddenId.value = exp.id;
-    }
-}
-
-// Search by title
-function searchExpense() {
-    const title = document.getElementById('searchTitle').value;
-    fetch(`${apiUrl}/search?title=${title}`)
-        .then(res => res.json())
-        .then(data => renderTable(data));
-}
-
-// Logout
-function logout() {
-    alert("Logged out successfully!");
-    window.location.href = "login.html";
-}
-
-// Initial load
+/* ================= INITIAL LOAD ================= */
 fetchExpenses();

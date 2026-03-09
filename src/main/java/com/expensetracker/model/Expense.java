@@ -16,6 +16,10 @@ private double amount;
 private LocalDate expenseDate;
 private String paymentMethod;
 
+@ManyToOne
+@JoinColumn(name="user_id")
+private User user;
+
 public Long getId(){return id;}
 
 public String getTitle(){return title;}
@@ -32,4 +36,8 @@ public void setExpenseDate(LocalDate expenseDate){this.expenseDate=expenseDate;}
 
 public String getPaymentMethod(){return paymentMethod;}
 public void setPaymentMethod(String paymentMethod){this.paymentMethod=paymentMethod;}
+
+public User getUser(){return user;}
+public void setUser(User user){this.user=user;}
+
 }
